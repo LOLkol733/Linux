@@ -1,0 +1,26 @@
+---
+# Description
+- name: Install prometheus stack
+  hosts: all
+  gather_facts: true
+  tasks:
+
+    - name: Install binary prometheus
+      ansible.builtin.import_tasks:
+        file: tasks/install-prometheus.yml
+
+    - name: Install graphana via .deb file
+      ansible.builtin.import_tasks:
+        file: tasks/install-graphana.yml
+      become: true
+
+    - name: Start SystemD services
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: true
+        daemon_reload: true
+      with_items:
+        - node_exporter
+        - prometheus
+        - grafana-server
+      become: true
